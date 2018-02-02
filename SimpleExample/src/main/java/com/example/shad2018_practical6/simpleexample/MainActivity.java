@@ -11,12 +11,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        long startTime = System.currentTimeMillis();
-        long result = calculate();
-        long totalTime = System.currentTimeMillis() - startTime;
+        final TextView tv = findViewById(R.id.main);
+        final long startTime = System.currentTimeMillis();
 
-        TextView tv = findViewById(R.id.main);
-        tv.setText(String.format("Calculate value %d in %d milliseconds", result, totalTime));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long result = calculate();
+                long totalTime = System.currentTimeMillis() - startTime;
+
+                tv.setText(String.format("Calculate value %d in %d milliseconds", result, totalTime));
+            }
+        }).start();
+
     }
 
     private int calculate() {
