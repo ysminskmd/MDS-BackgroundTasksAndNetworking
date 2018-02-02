@@ -1,10 +1,15 @@
 package com.example.shad2018_practical6.simpleexample;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+
+    static Thread sThread;
+    static Handler sHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -14,16 +19,26 @@ public class MainActivity extends AppCompatActivity {
         final TextView tv = findViewById(R.id.main);
         final long startTime = System.currentTimeMillis();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                long result = calculate();
-                long totalTime = System.currentTimeMillis() - startTime;
+        if (sThread == null) {
+            sHandler = new Handler();
+            sThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final long result = calculate();
+                    final long totalTime = System.currentTimeMillis() - startTime;
+                    Log.i("Shad", "Calculate finished");
+                    sHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i("Shad", "Set value to tv = " + tv);
+                            tv.setText(String.format("Calculate value %d in %d milliseconds", result, totalTime));
+                        }
+                    });
+                }
+            });
 
-                tv.setText(String.format("Calculate value %d in %d milliseconds", result, totalTime));
-            }
-        }).start();
-
+            sThread.start();
+        }
     }
 
     private int calculate() {
