@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(final Context context, final Intent intent) {
             String action = intent.getAction();
-            Log.d(TAG, "UpdateImageBroadcastReceiver#onReceive() with action");
+            Log.d(TAG, "UpdateImageBroadcastReceiver#onReceive() with action: " + action);
             if (ImageLoaderService.BROADCAST_ACTION_UPDATE_IMAGE.equals(action)) {
                 final String imageName = intent.getStringExtra(ImageLoaderService.BROADCAST_PARAM_IMAGE);
                 if (TextUtils.isEmpty(imageName) == false) {

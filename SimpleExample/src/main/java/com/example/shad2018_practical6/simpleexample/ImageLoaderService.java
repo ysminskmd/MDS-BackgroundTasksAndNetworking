@@ -1,13 +1,14 @@
 package com.example.shad2018_practical6.simpleexample;
 
-import android.app.Service;
+import android.app.IntentService;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class ImageLoaderService extends Service {
+public class ImageLoaderService extends IntentService {
 
     private static final String TAG = "Shad";
 
@@ -20,6 +21,7 @@ public class ImageLoaderService extends Service {
     private final ImageLoader mImageLoader;
 
     public ImageLoaderService() {
+        super("ImageLoaderService");
         mImageLoader = new ImageLoader();
     }
 
@@ -36,41 +38,26 @@ public class ImageLoaderService extends Service {
     }
 
     @Override
-    public int onStartCommand(final Intent intent,
-                              final int flags,
-                              final int startId) {
+    protected void onHandleIntent(@Nullable final Intent intent) {
         String action = intent.getAction();
-        Log.d(TAG, "ImageLoaderService#onStartCommand() with action = " + action);
+        Log.d("Shad", "LoaderService#onHandleIntent() with action = " + action);
         if (SERVICE_ACTION_LOAD_IMAGE.equals(action)) {
-            load(startId);
-        }
+            final String imageUrl = mImageLoader.getImageUrl();
+            if (TextUtils.isEmpty(imageUrl) == false) {
+                final Bitmap bitmap = mImageLoader.loadBitmap(imageUrl);
+                final String imageName = "myImage.png";
+                ImageSaver.getInstance().saveImage(getApplicationContext(), bitmap, imageName);
 
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    private void load(final int startId) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final String imageUrl = mImageLoader.getImageUrl();
-                if (TextUtils.isEmpty(imageUrl) == false) {
-                    final Bitmap bitmap = mImageLoader.loadBitmap(imageUrl);
-                    final String imageName = "myImage.png";
-                    ImageSaver.getInstance().saveImage(getApplicationContext(), bitmap, imageName);
-
-                    final Intent intent = new Intent(BROADCAST_ACTION_UPDATE_IMAGE);
-                    intent.putExtra(BROADCAST_PARAM_IMAGE, imageName);
-                    sendBroadcast(intent);
-                }
+                final Intent broadcastIntent = new Intent(BROADCAST_ACTION_UPDATE_IMAGE);
+                broadcastIntent.putExtra(BROADCAST_PARAM_IMAGE, imageName);
+                sendBroadcast(broadcastIntent);
             }
-        }).start();
-
-        stopSelf(startId);
+        }
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "MyService, onDestroy");
+        Log.d(TAG, "ImageLoaderService#onDestroy()");
         super.onDestroy();
     }
 }
