@@ -1,56 +1,64 @@
 package com.example.shad2018_practical6.simpleexample;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.widget.TextView;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
-    static Thread sThread;
-    static Handler sHandler;
+    private View mRootLayout;
+    private View mProgressBar;
+    private ImageLoader mImageLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        final TextView tv = findViewById(R.id.main);
-        final long startTime = System.currentTimeMillis();
+        mImageLoader = new ImageLoader();
+        mRootLayout = findViewById(R.id.layout);
+        mProgressBar = findViewById(R.id.progressBar);
 
-        if (sThread == null) {
-            sHandler = new Handler();
-            sThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    final long result = calculate();
-                    final long totalTime = System.currentTimeMillis() - startTime;
-                    Log.i("Shad", "Calculate finished");
-                    sHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.i("Shad", "Set value to tv = " + tv);
-                            tv.setText(String.format("Calculate value %d in %d milliseconds", result, totalTime));
-                        }
-                    });
-                }
-            });
-
-            sThread.start();
-        }
+        final FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                mProgressBar.setVisibility(View.VISIBLE);
+                Drawable drawable = loadImage();
+                setDrawable(drawable);
+            }
+        });
     }
 
-    private int calculate() {
-        int result = 0;
-        for (int i = 1; i < 1000; i ++) {
-            result ++;
-            try {
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-
-            }
+    @Nullable
+    private Drawable loadImage() {
+        Drawable bitmapDrawable = null;
+        final String imageUrl = mImageLoader.getImageUrl();
+        if (TextUtils.isEmpty(imageUrl) == false) {
+            final Bitmap bitmap = mImageLoader.loadBitmap(imageUrl);
+            bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
         }
-        return result;
+
+        return bitmapDrawable;
+    }
+
+    private void setDrawable(Drawable drawable) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            mRootLayout.setBackground(drawable);
+        } else {
+            mRootLayout.setBackgroundDrawable(drawable);
+        }
+
+        mProgressBar.setVisibility(View.INVISIBLE);
     }
 }
