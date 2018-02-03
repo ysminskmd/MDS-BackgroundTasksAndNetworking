@@ -1,9 +1,6 @@
 package com.example.shad2018_practical6.simpleexample;
 
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -63,15 +60,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(final View v) {
                 Log.d(TAG, "Load image");
                 mProgressBar.setVisibility(View.VISIBLE);
-                JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-                if (jobScheduler != null) {
-                    jobScheduler.schedule(
-                            new JobInfo.Builder(ImageLoaderService.JOB_ID_LOAD_IMAGE,
-                                    new ComponentName(getApplicationContext(), ImageLoaderService.class))
-                                    .setOverrideDeadline(0L)
-                                    .build()
-                    );
-                }
+                Intent intent = new Intent(ImageLoaderService.ACTION_LOAD_IMAGE);
+                ImageLoaderService.enqueueWork(getApplicationContext(), intent);
             }
         });
 
