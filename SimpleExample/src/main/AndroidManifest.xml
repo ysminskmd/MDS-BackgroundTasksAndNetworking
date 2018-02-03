@@ -21,7 +21,8 @@
         </activity>
 
         <service
-            android:name=".ImageLoaderService">
+            android:name=".ImageLoaderService"
+            android:permission="android.permission.BIND_JOB_SERVICE">
         </service>
     </application>
 
