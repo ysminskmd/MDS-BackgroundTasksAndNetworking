@@ -3,6 +3,7 @@ package com.example.shad2018_practical6.simpleexample;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,9 +15,31 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
+    private class ImageLoaderAsyncTask extends AsyncTask<Void, Void, Drawable> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Drawable doInBackground(final Void... voids) {
+            return loadImage();
+        }
+
+        @Override
+        protected void onPostExecute(final Drawable drawable) {
+            super.onPostExecute(drawable);
+            setDrawable(drawable);
+        }
+    }
+
     private View mRootLayout;
     private View mProgressBar;
     private ImageLoader mImageLoader;
+
+    private AsyncTask<Void, Void, Drawable> mDrawableLoaderAsyncTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,13 +52,13 @@ public class MainActivity extends AppCompatActivity {
         mRootLayout = findViewById(R.id.layout);
         mProgressBar = findViewById(R.id.progressBar);
 
+        mDrawableLoaderAsyncTask = new ImageLoaderAsyncTask();
+
         final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                mProgressBar.setVisibility(View.VISIBLE);
-                Drawable drawable = loadImage();
-                setDrawable(drawable);
+                mDrawableLoaderAsyncTask.execute();
             }
         });
     }
