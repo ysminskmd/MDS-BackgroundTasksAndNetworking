@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class ResultsDbHelper extends SQLiteOpenHelper {
 
-    public static final String DATABASE_NAME = "CalculatingResults";
+    public static final String DATABASE_NAME = "CalculatingResult";
     private static final int CURRENT_VERSION = 1;
 
     public ResultsDbHelper(Context context) {
