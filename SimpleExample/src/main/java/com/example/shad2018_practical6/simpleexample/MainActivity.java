@@ -1,64 +1,84 @@
 package com.example.shad2018_practical6.simpleexample;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CursorAdapter;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private View mRootLayout;
-    private View mProgressBar;
-    private ImageLoader mImageLoader;
+    private Button mServiceControlButton;
+    private ListView mListView;
+    boolean isRunning = false;
+
+    private static final int RESULTS_CONTENT = 1;
+
+    CursorAdapter mCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        mImageLoader = new ImageLoader();
-        mRootLayout = findViewById(R.id.layout);
-        mProgressBar = findViewById(R.id.progressBar);
+        mServiceControlButton = findViewById(R.id.btn_service_control);
+        mListView = findViewById(R.id.lv_results);
 
-        final FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_2, null,
+                new String[]{ResultsContract.Columns._ID, ResultsContract.Columns.RESULT},
+                new int[]{android.R.id.text1, android.R.id.text2 }, 0);
+
+        mListView.setAdapter(mCursorAdapter);
+
+        mServiceControlButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(final View v) {
-                mProgressBar.setVisibility(View.VISIBLE);
-                Drawable drawable = loadImage();
-                setDrawable(drawable);
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), CalculationService.class);
+                if (isRunning) {
+                    isRunning = false;
+                    mServiceControlButton.setText(getString(R.string.start_calculation));
+                    stopService(intent);
+                } else {
+                    isRunning = true;
+                    mServiceControlButton.setText(getString(R.string.stop_calculation));
+                    startService(intent);
+                }
             }
         });
+
+        getLoaderManager().initLoader(RESULTS_CONTENT, null, this);
+
     }
 
-    @Nullable
-    private Drawable loadImage() {
-        Drawable bitmapDrawable = null;
-        final String imageUrl = mImageLoader.getImageUrl();
-        if (TextUtils.isEmpty(imageUrl) == false) {
-            final Bitmap bitmap = mImageLoader.loadBitmap(imageUrl);
-            bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
-        }
-
-        return bitmapDrawable;
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isRunning = false;
+        stopService(new Intent(getApplicationContext(), CalculationService.class));
     }
 
-    private void setDrawable(Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mRootLayout.setBackground(drawable);
-        } else {
-            mRootLayout.setBackgroundDrawable(drawable);
-        }
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri basePath = ResultsContract.RESULTS_URI;
+        String[] projection = new String[] {ResultsContract.Columns._ID, ResultsContract.Columns.RESULT};
+        return new CursorLoader(this, basePath, projection, null, null, null);
+    }
 
-        mProgressBar.setVisibility(View.INVISIBLE);
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mCursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mCursorAdapter.swapCursor(null);
     }
 }
