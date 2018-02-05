@@ -1,27 +1,13 @@
 package com.example.shad2018_practical6.simpleexample;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
+@Entity(tableName = "calculation_result")
 public class CalculationResult {
-    private String mId;
-    private String mResult;
-
-    public CalculationResult(final String id, final String result) {
-        mId = id;
-        mResult = result;
-    }
-
-    public String getId() {
-        return mId;
-    }
-
-    public void setId(final String id) {
-        mId = id;
-    }
-
-    public String getResult() {
-        return mResult;
-    }
-
-    public void setResult(final String result) {
-        mResult = result;
-    }
+    @PrimaryKey(autoGenerate = true)
+    public Integer id;
+    @ColumnInfo(name = "result")
+    public String result;
 }

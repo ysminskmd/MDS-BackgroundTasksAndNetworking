@@ -20,8 +20,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     boolean isRunning = false;
 
-    private static final int RESULTS_CONTENT = 1;
-
     private CalculationResultAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 

@@ -41,8 +41,8 @@ public class CalculationResultAdapter extends RecyclerView.Adapter<CalculationRe
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         CalculationResult calculationResult = mData.get(position);
-        holder.tvId.setText(calculationResult.getId());
-        holder.tvResult.setText(calculationResult.getResult());
+        holder.tvId.setText(String.valueOf(calculationResult.id));
+        holder.tvResult.setText(calculationResult.result);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.example.shad2018_practical6.simpleexample;
 
 import android.app.Service;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -21,13 +20,14 @@ public class CalculationService extends Service {
                 int num = new Random().nextInt(1000);
                 BigInteger result = factorial(num);
                 String resultString = result.toString();
-                ContentValues cv = new ContentValues();
-                cv.put(ResultsContract.Columns.RESULT, resultString);
-                Log.d("Shad",
-                        String.format("Insert into %s values: %s",
-                                ResultsContract.RESULTS_URI.toString(),
-                                cv.toString()));
-                getContentResolver().insert(ResultsContract.RESULTS_URI, cv);
+                CalculationResult calculationResult = new CalculationResult();
+                calculationResult.result = resultString;
+
+                Log.d("Shad", String.format("Insert value: %s: %s",
+                        calculationResult.id, calculationResult.result));
+
+                CalculationResultDbHolder.getInstance().getDb(getApplicationContext()).calculationResultDao()
+                        .insert(calculationResult);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
