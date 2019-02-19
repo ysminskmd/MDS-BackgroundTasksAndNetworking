@@ -1,4 +1,4 @@
-package com.example.shad2018_practical6.simpleexample;
+package com.example.shad.async;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -6,7 +6,10 @@ import android.support.annotation.MainThread;
 import android.support.annotation.WorkerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Arrays;
 
@@ -80,19 +83,30 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTv;
     private CalculationAsyncTask mCalculationAsyncTask;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Button toastButton = findViewById(R.id.showtoast);
+        Button calculateButton = findViewById(R.id.calculate);
         mTv = findViewById(R.id.main);
         mCalculationAsyncTask = new CalculationAsyncTask();
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mCalculationAsyncTask.execute(1000);
+        toastButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "Toast button pressed", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        calculateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCalculationAsyncTask.execute(1000);
+            }
+        });
     }
 
     @Override
