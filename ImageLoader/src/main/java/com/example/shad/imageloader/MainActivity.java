@@ -1,4 +1,4 @@
-package com.example.shad2018_practical6.simpleexample;
+package com.example.shad.imageloader;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -52,12 +52,11 @@ public class MainActivity extends AppCompatActivity {
         mRootLayout = findViewById(R.id.layout);
         mProgressBar = findViewById(R.id.progressBar);
 
-        mDrawableLoaderAsyncTask = new ImageLoaderAsyncTask();
-
         final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
+                mDrawableLoaderAsyncTask = new ImageLoaderAsyncTask();
                 mDrawableLoaderAsyncTask.execute();
             }
         });
