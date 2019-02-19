@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Shad Async Example</string>
+    <string name="calculate">Calculate</string>
+    <string name="show_toast">Show toast</string>
+</resources>
