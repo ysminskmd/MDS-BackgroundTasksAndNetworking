@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
@@ -64,14 +63,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Nullable
     private Drawable loadImage() {
-        Drawable bitmapDrawable = null;
-        final String imageUrl = mImageLoader.getImageUrl();
-        if (TextUtils.isEmpty(imageUrl) == false) {
-            final Bitmap bitmap = mImageLoader.loadBitmap(imageUrl);
-            bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
-        }
-
-        return bitmapDrawable;
+        final Bitmap bitmap = mImageLoader.loadBitmap("https://f1.upet.com/A_AW8y4KQDMH_M.jpg");
+        return new BitmapDrawable(getResources(), bitmap);
     }
 
     private void setDrawable(Drawable drawable) {
