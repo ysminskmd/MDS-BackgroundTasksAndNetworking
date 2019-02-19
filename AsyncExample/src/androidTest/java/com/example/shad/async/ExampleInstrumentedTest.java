@@ -1,4 +1,4 @@
-package com.example.shad2018_practical6.simpleexample;
+package com.example.shad.async;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
