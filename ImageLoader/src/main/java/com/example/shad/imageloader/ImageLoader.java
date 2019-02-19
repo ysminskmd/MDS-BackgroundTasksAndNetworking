@@ -4,31 +4,26 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.Nullable;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 class ImageLoader {
 
     @Nullable
     Bitmap loadBitmap(String srcUrl) {
         try {
-            URL url = new URL(srcUrl);
-            URLConnection urlConnection = url.openConnection();
-            InputStream is = urlConnection.getInputStream();
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-            int nRead;
-            byte[] data = new byte[16384];
-
-            while ((nRead = is.read(data, 0, data.length)) != -1) {
-                buffer.write(data, 0, nRead);
+            OkHttpClient okHttpClient = new OkHttpClient();
+            Request request = new Request.Builder().url(srcUrl).build();
+            Response response = okHttpClient.newCall(request).execute();
+            ResponseBody responseBody = response.body();
+            if (responseBody != null) {
+                byte[] bitmap = responseBody.bytes();
+                return BitmapFactory.decodeByteArray(bitmap, 0, bitmap.length);
             }
-            buffer.flush();
-            byte [] bitmap = buffer.toByteArray();
-            return BitmapFactory.decodeByteArray(bitmap, 0, bitmap.length);
         } catch (IOException e) {
             e.printStackTrace();
         }
