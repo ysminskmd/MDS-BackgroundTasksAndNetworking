@@ -6,7 +6,7 @@ android {
 
 
     defaultConfig {
-        applicationId "com.example.shad2018_practical6.simpleexample"
+        applicationId "com.example.shad.imageloader"
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
