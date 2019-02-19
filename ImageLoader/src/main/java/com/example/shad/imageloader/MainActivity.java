@@ -1,14 +1,12 @@
 package com.example.shad.imageloader;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.arch.lifecycle.Observer;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,33 +14,16 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+
 public class MainActivity extends AppCompatActivity {
-
-    private class UpdateImageBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(final Context context, final Intent intent) {
-            String action = intent.getAction();
-            Log.d(TAG, "UpdateImageBroadcastReceiver#onReceive() with action: " + action);
-            if (ImageLoaderService.BROADCAST_ACTION_UPDATE_IMAGE.equals(action)) {
-                final String imageName = intent.getStringExtra(ImageLoaderService.BROADCAST_PARAM_IMAGE);
-                if (TextUtils.isEmpty(imageName) == false) {
-                    final Bitmap bitmap = ImageSaver.getInstance().loadImage(getApplicationContext(), imageName);
-                    final Drawable drawable = new BitmapDrawable(getResources(), bitmap);
-                    setDrawable(drawable);
-                }
-            }
-
-            mProgressBar.setVisibility(View.INVISIBLE);
-        }
-    }
 
     private static final String TAG = "Shad";
 
     private View mRootLayout;
     private View mProgressBar;
-
-    private UpdateImageBroadcastReceiver mUpdateImageBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,25 +41,38 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(final View v) {
                 Log.d(TAG, "Load image");
                 mProgressBar.setVisibility(View.VISIBLE);
-                Intent intent = new Intent(ImageLoaderService.ACTION_LOAD_IMAGE);
-                ImageLoaderService.enqueueWork(getApplicationContext(), intent);
+
+                OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(ImageLoaderWorker.class).build();
+                WorkManager workManager = WorkManager.getInstance();
+                workManager.enqueue(request);
+                workManager.getWorkInfoByIdLiveData(request.getId()).observe(MainActivity.this, new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(@Nullable WorkInfo workInfo) {
+                        Log.d(TAG, "Work status changed");
+                        if (workInfo != null && workInfo.getState().isFinished()) {
+                            Log.d(TAG, "Work finished");
+                            mProgressBar.setVisibility(View.INVISIBLE);
+                            String imagePath = workInfo.getOutputData().getString(ImageLoaderWorker.PARAM_IMAGE);
+                            if (TextUtils.isEmpty(imagePath) == false) {
+                                final Bitmap bitmap = ImageSaver.getInstance().loadImage(getApplicationContext(), imagePath);
+                                final Drawable drawable = new BitmapDrawable(getResources(), bitmap);
+                                setDrawable(drawable);
+                            }
+                        }
+                    }
+                });
             }
         });
-
-        mUpdateImageBroadcastReceiver = new UpdateImageBroadcastReceiver();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "MainActivity#onResume()");
-        registerReceiver(mUpdateImageBroadcastReceiver,
-                new IntentFilter(ImageLoaderService.BROADCAST_ACTION_UPDATE_IMAGE));
     }
 
     @Override
     protected void onPause() {
-        unregisterReceiver(mUpdateImageBroadcastReceiver);
         Log.d(TAG, "MainActivity#onPause()");
         super.onPause();
     }

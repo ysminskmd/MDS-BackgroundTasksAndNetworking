@@ -22,7 +22,7 @@
         </activity>
 
         <service
-            android:name="com.example.shad.imageloader.ImageLoaderService"
+            android:name="com.example.shad.imageloader.ImageLoaderWorker"
             android:permission="android.permission.BIND_JOB_SERVICE">
         </service>
     </application>
