@@ -1,4 +1,4 @@
-package com.example.shad2018_practical6.simpleexample;
+package com.example.shad.imageloader;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
