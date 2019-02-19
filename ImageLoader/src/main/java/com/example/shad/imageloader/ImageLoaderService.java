@@ -4,7 +4,6 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class ImageLoaderService extends JobService {
@@ -38,17 +37,14 @@ public class ImageLoaderService extends JobService {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final String imageUrl = mImageLoader.getImageUrl();
-                    if (TextUtils.isEmpty(imageUrl) == false) {
-                        final Bitmap bitmap = mImageLoader.loadBitmap(imageUrl);
-                        final String imageName = "myImage.png";
-                        ImageSaver.getInstance().saveImage(getApplicationContext(), bitmap, imageName);
+                    final Bitmap bitmap = mImageLoader.loadBitmap("https://f1.upet.com/A_AW8y4KQDMH_M.jpg");
+                    final String imageName = "myImage.png";
+                    ImageSaver.getInstance().saveImage(getApplicationContext(), bitmap, imageName);
 
-                        final Intent broadcastIntent = new Intent(BROADCAST_ACTION_UPDATE_IMAGE);
-                        broadcastIntent.putExtra(BROADCAST_PARAM_IMAGE, imageName);
-                        sendBroadcast(broadcastIntent);
-                        jobFinished(params, false);
-                    }
+                    final Intent broadcastIntent = new Intent(BROADCAST_ACTION_UPDATE_IMAGE);
+                    broadcastIntent.putExtra(BROADCAST_PARAM_IMAGE, imageName);
+                    sendBroadcast(broadcastIntent);
+                    jobFinished(params, false);
                 }
             }).start();
             return true;
