@@ -1,44 +1,32 @@
 package com.example.shad.imageloader;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+
+import static android.view.View.VISIBLE;
 
 public class MainActivity extends AppCompatActivity {
 
-    private class ImageLoaderAsyncTask extends AsyncTask<Void, Void, Drawable> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mProgressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected Drawable doInBackground(final Void... voids) {
-            return loadImage();
-        }
-
-        @Override
-        protected void onPostExecute(final Drawable drawable) {
-            super.onPostExecute(drawable);
-            setDrawable(drawable);
-        }
-    }
-
     private View mRootLayout;
     private View mProgressBar;
-    private ImageLoader mImageLoader;
-
-    private AsyncTask<Void, Void, Drawable> mDrawableLoaderAsyncTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,24 +35,33 @@ public class MainActivity extends AppCompatActivity {
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mImageLoader = new ImageLoader();
         mRootLayout = findViewById(R.id.layout);
         mProgressBar = findViewById(R.id.progressBar);
 
         final FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                mDrawableLoaderAsyncTask = new ImageLoaderAsyncTask();
-                mDrawableLoaderAsyncTask.execute();
-            }
-        });
-    }
+        fab.setOnClickListener(v -> {
+            OkHttpClient okHttpClient = new OkHttpClient();
+            Request request = new Request.Builder().url("https://f1.upet.com/A_AW8y4KQDMH_M.jpg").build();
+            mProgressBar.setVisibility(VISIBLE);
+            okHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    mProgressBar.setVisibility(View.INVISIBLE);
+                    Log.e("Shad", "Error during bitmap loading", e);
+                }
 
-    @Nullable
-    private Drawable loadImage() {
-        final Bitmap bitmap = mImageLoader.loadBitmap("https://f1.upet.com/A_AW8y4KQDMH_M.jpg");
-        return new BitmapDrawable(getResources(), bitmap);
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    mProgressBar.setVisibility(View.INVISIBLE);
+                    ResponseBody responseBody = response.body();
+                    if (responseBody != null) {
+                        byte[] bitmapBytes = responseBody.bytes();
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
+                        runOnUiThread(() -> setDrawable(new BitmapDrawable(bitmap)));
+                    }
+                }
+            });
+        });
     }
 
     private void setDrawable(Drawable drawable) {
