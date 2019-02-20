@@ -14,6 +14,9 @@ import android.widget.Button;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
 public class MainActivity extends AppCompatActivity {
 
     private Button mServiceControlButton;
@@ -22,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
 
     private CalculationResultAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    private final String CALCULATION_TASK_TAG = "Calculation";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,15 +54,22 @@ public class MainActivity extends AppCompatActivity {
         mServiceControlButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), CalculationService.class);
+                WorkManager workManager = WorkManager.getInstance();
+                //Intent intent = new Intent(getApplicationContext(), CalculationService.class);
                 if (isRunning) {
                     isRunning = false;
                     mServiceControlButton.setText(getString(R.string.start_calculation));
-                    stopService(intent);
+                    //stopService(intent);
+                    workManager.cancelAllWorkByTag(CALCULATION_TASK_TAG);
                 } else {
                     isRunning = true;
                     mServiceControlButton.setText(getString(R.string.stop_calculation));
-                    startService(intent);
+                    workManager.enqueue(
+                            new OneTimeWorkRequest.Builder(CalculationWorker.class)
+                                    .addTag(CALCULATION_TASK_TAG)
+                                    .build()
+                    );
+                    //startService(intent);
                 }
             }
         });

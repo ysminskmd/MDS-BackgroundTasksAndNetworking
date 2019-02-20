@@ -12,7 +12,7 @@ class CalculationResultDbHolder {
         return ourInstance;
     }
 
-    private static final String DATABASE_NAME = "main";
+    private static final String DATABASE_NAME = "factorial";
 
     private volatile CalculationResultDb mCalculationResultDb;
 

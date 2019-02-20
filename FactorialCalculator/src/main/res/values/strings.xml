@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ShadLoaderSample</string>
+    <string name="app_name">Factorial calculator</string>
     <string name="start_calculation">Start calculation</string>
     <string name="stop_calculation">Stop calculation</string>
 </resources>
