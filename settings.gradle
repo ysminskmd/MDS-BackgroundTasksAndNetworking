@@ -1,0 +1,7 @@
+include ':Thread1', ':Thread2', ':Thread3', ':Thread4', ':Deadlock',
+        ':AsyncTask', ':ConnectionTypes', ':DataSaver', ':HandlerThread',
+        ':ImageLoaderMain', ':ImageLoaderAsyncTask', ':ImageLoaderOkHttp', ':ImageLoaderOkHttpAsync',
+        ':ImageLoaderService', ':ImageLoaderFgService', ':ImageLoaderIntentService',
+        ':ImageLoaderJobService', ':CalculatorJobIntentService',
+        ':ImageLoaderWorkManager', ':ImageLoaderDownloadManager',
+        ':FactorialCalculator'

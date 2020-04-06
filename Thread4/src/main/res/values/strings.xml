@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Thread4</string>
+    <string name="calculate">Calculate</string>
+    <string name="show_toast">Show toast</string>
+</resources>
